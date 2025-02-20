@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import "./styles.css";
 
 const colors = [
   { name: "ROJO", hex: "#D9534F", audio: "https://raw.githubusercontent.com/loxodontapr/audio/main/rojo.mp3" },
