@@ -37,7 +37,7 @@ export default function App() {
   return (
     <div className="container" style={{ backgroundColor: flashColor || "#f3f4f6" }}>
       <h1 className="title">MIKA, ELIGE UN COLOR</h1>
-      <div className="color-grid">
+      <div className="color">
         {colors.map((color) => (
           <motion.button
             key={color.name}
