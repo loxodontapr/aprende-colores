@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/aprende-colores/static/css/main.eee19143.css",
+    "main.css": "/aprende-colores/static/css/main.c6eb5078.css",
     "main.js": "/aprende-colores/static/js/main.b0101e67.js",
     "index.html": "/aprende-colores/index.html",
-    "main.eee19143.css.map": "/aprende-colores/static/css/main.eee19143.css.map",
+    "main.c6eb5078.css.map": "/aprende-colores/static/css/main.c6eb5078.css.map",
     "main.b0101e67.js.map": "/aprende-colores/static/js/main.b0101e67.js.map"
   },
   "entrypoints": [
-    "static/css/main.eee19143.css",
+    "static/css/main.c6eb5078.css",
     "static/js/main.b0101e67.js"
   ]
 }
