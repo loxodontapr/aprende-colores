@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Configuración del viewport para evitar zoom -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Aprende los Colores - Juego interactivo para aprender y reconocer colores.">
+  <title>Aprende los Colores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300&family=Comic+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=contrast" />
+  <style>
+    /* Deshabilitar scroll y gestos táctiles en toda la página */
+    html, body {
+      overflow: hidden;
+      touch-action: none;
+    }
+    :root {
+      --bg-color: #ECEFFC; 
+      --dark-bg-color: #121212;
+      --text-color: #222;
+      --dark-text-color: #e0e0e0;
+      --btn-radius: 15px;
+      --icon-size: 70px;
+      --icon-bg-color: #333;
+      --icon-border-radius: 50%;
+      --icon-hover-bg: #444;
+    }
+    body {
+      background-image: linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%);
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.5s ease, color 0.5s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+      margin: 0;
+    }
+    /* Modo oscuro */
+    body.dark-mode {
+      background-color: var(--dark-bg-color);
+      color: var(--dark-text-color);
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      width: 100%;
+    }
+    .color-btn {
+      /* Tamaño fijo: 176px x 135px */
+      width: 176px;
+      height: 135px;
+      font-size: 30px;
+      border: none;
+      border-radius: var(--btn-radius);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+      font-family: 'Comic Neue', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-transform: capitalize;
+      box-sizing: border-box;
+    }
+    .color-btn:hover {
+      transform: scale(1.1);
+    }
+    .white { color: black; }
+    #color-display {
+      font-size: 28px;
+      margin: 20px;
+      font-weight: bold;
+    }
+    .mode-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      font-size: var(--icon-size);
+      cursor: pointer;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: var(--icon-size);
+      height: var(--icon-size);
+      border-radius: var(--icon-border-radius);
+      transition: background-color 0.3s ease;
+    }
+    .mode-toggle:hover {
+      background-color: var(--icon-hover-bg);
+    }
+    .mode-toggle span {
+      display: inline-block;
+      font-size: 40px;
+      transition: color 0.3s ease;
+    }
+    @media (max-width: 768px) {
+      body { font-size: 18px; padding: 10px; }
+      h1 { font-size: 32px; }
+      .container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+      .color-btn { font-size: 22px; }
+    }
+    .restart-btn {
+      font-size: 40px;
+      background: transparent;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      margin-top: 30px;
+      margin-bottom: 30px;
+      transition: transform 0.3s ease, top 0.3s ease, left 0.3s ease;
+    }
+    /* Botón de reinicio en juego terminado */
+    .restart-btn.active {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.3);
+      z-index: 100;
+    }
+    /* Footer estilo "copyright" */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      background: transparent;
+      z-index: 200;
+    }
+    footer span { cursor: pointer; }
+    #footerText { display: none; margin-left: 10px; }
+    /* Animación shake para error */
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-10px, 0); }
+      40% { transform: translate(10px, 0); }
+      60% { transform: translate(-10px, 0); }
+      80% { transform: translate(10px, 0); }
+      100% { transform: translate(0, 0); }
+    }
+    .shake { animation: shake 0.5s; }
+  </style>
+</head>
+<body>
+  <button class="mode-toggle" onclick="toggleDarkMode()" aria-label="Cambiar modo oscuro">
+    <span id="mode-icon" class="material-symbols-outlined">contrast</span>
+  </button>
+  <svg height="200" width="300" xmlns="http://www.w3.org/2000/svg">
+    <image height="200" width="300" href="https://raw.githubusercontent.com/loxodontapr/aprende-colores/main/svg/AdivinaElColor.svg" />
+  </svg>
+  <!-- Área de preguntas y mensajes -->
+  <p id="color-display"></p>
+  <div class="container" id="color-container">
+    <button class="color-btn" id="rojo-btn" data-solid-color="#e50031" style="background: radial-gradient(ellipse at 125% 125%, #e50031, #a30023)" onclick="checkAnswer('Rojo', 'rojo-btn')">Rojo</button>
+<button class="color-btn" id="azul-btn" data-solid-color="#0A84FF" style="background: radial-gradient(ellipse at 125% 125%, #0A84FF, #000dc5)" onclick="checkAnswer('Azul', 'azul-btn')">Azul</button>
+<button class="color-btn" id="amarillo-btn" data-solid-color="#FFD60A" style="background: radial-gradient(ellipse at 125% 125%, #FFD60A, #e1bc01)" onclick="checkAnswer('Amarillo', 'amarillo-btn')">Amarillo</button>
+<button class="color-btn" id="verde-btn" data-solid-color="#24A148" style="background: radial-gradient(ellipse at 125% 125%, #24A148, #008726)" onclick="checkAnswer('Verde', 'verde-btn')">Verde</button>
+<button class="color-btn" id="negro-btn" data-solid-color="#000000" style="background: radial-gradient(ellipse at 125% 125%, #000000, #3d3d3d)" onclick="checkAnswer('Negro', 'negro-btn')">Negro</button>
+<button class="color-btn white" id="blanco-btn" data-solid-color="#ffffff" style="background: radial-gradient(ellipse at 125% 125%, #ffffff, #ececec)" onclick="checkAnswer('Blanco', 'blanco-btn')">Blanco</button>
+<button class="color-btn" id="anaranjado-btn" data-solid-color="#FF7900" style="background: radial-gradient(ellipse at 125% 125%, #FF7900, #cc5f00)" onclick="checkAnswer('Anaranjado', 'anaranjado-btn')">Anaranjado</button>
+<button class="color-btn" id="violeta-btn" data-solid-color="#8944AB" style="background: radial-gradient(ellipse at 125% 125%, #8944AB, #640095)" onclick="checkAnswer('Violeta', 'violeta-btn')">Violeta</button>
+<button class="color-btn" id="rosa-btn" data-solid-color="#FF82AB" style="background: radial-gradient(ellipse at 125% 125%, #FF82AB, #cd4270)" onclick="checkAnswer('Rosa', 'rosa-btn')">Rosa</button>
+<button class="color-btn" id="marron-btn" data-solid-color="#6F4F28" style="background: radial-gradient(ellipse at 125% 125%, #6F4F28, #562f00)" onclick="checkAnswer('Marrón', 'marron-btn')">Marrón</button>
+  </div>
+  <button class="restart-btn" id="restart-btn" onclick="restartSelection()" aria-label="Reiniciar selección">
+    <img width="22" height="22" id="restart-icon" src="https://img.icons8.com/ios-filled/50/restart--v1.png" alt="Reiniciar">
+  </button>
+  <audio id="audio"></audio>
+  
+  <!-- Footer con el emoji de corazón -->
+  <footer>
+    <span id="loveEmoji">🖤</span>
+    <span id="footerText">Creado con amor para Mikaela de Papá, ah y ChatGPT 🤖 que ayudó a depurar algunas líneas. Vector del titulo creado por @YusufSangdes, modificado por JLG</span>
+  </footer>
+  
+  <script defer>
+    let colorSelected = false;
+    let currentTargetColor = "";
+    let questionTimeout = null;
+    let questionRepeatCount = 0;
+    const maxRepeat = 1; // Se repetirá una única vez adicional
+
+    // Función para "despertar" el audio en dispositivos que bloquean autoplay
+    function resumeAudioOnInteraction() {
+      document.body.addEventListener('touchstart', function resume() {
+        audioElement.play().then(() => { audioElement.pause(); }).catch(() => {});
+        document.body.removeEventListener('touchstart', resume);
+      }, { once: true });
+      document.body.addEventListener('click', function resume() {
+        audioElement.play().then(() => { audioElement.pause(); }).catch(() => {});
+        document.body.removeEventListener('click', resume);
+      }, { once: true });
+    }
+    resumeAudioOnInteraction();
+
+    // Función auxiliar para reproducir un audio y llamar al callback cuando termine (se asegura de llamarlo solo una vez)
+    function playAudio(url, callback) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      audioElement.src = url;
+      audioElement.play().catch(() => {}); // En caso de que se bloquee
+      const handler = function() {
+        audioElement.removeEventListener("ended", handler);
+        callback();
+      };
+      audioElement.addEventListener("ended", handler);
+    }
+
+    // Programa la repetición de la pregunta (cada 10 segundos) si no se responde y si no se ha repetido ya el máximo
+    function scheduleRepeatQuestion() {
+      if (questionRepeatCount < maxRepeat) {
+        questionTimeout = setTimeout(() => {
+          questionRepeatCount++;
+          // Si el audio sigue reproduciéndose, espera a que termine antes de repetir
+          if (!audioElement.paused && audioElement.currentTime < audioElement.duration) {
+            audioElement.addEventListener('ended', function onEnded() {
+              repeatQuestion();
+              audioElement.removeEventListener('ended', onEnded);
+            });
+          } else {
+            repeatQuestion();
+          }
+        }, 10000);
+      }
+    }
+
+    // Reproduce la pregunta del color actual y programa su repetición
+    function repeatQuestion() {
+      clearTimeout(questionTimeout);
+      const colorDisplay = document.getElementById("color-display");
+      colorDisplay.textContent = "¿Dónde está " + currentTargetColor + "?";
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      const qAudio = questionAudios[currentTargetColor];
+      if (qAudio) {
+        playAudio(qAudio, function() {
+          // Una vez finalizado el audio de la pregunta, se programa la repetición
+          scheduleRepeatQuestion();
+        });
+      } else {
+        scheduleRepeatQuestion();
+      }
+    }
+
+    // URLs de audio para preguntas, respuestas correctas y error
+    const questionAudios = {
+      "Rojo": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_rojo.mp3",
+      "Azul": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_azul.mp3",
+      "Amarillo": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_amarillo.mp3",
+      "Verde": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_verde.mp3",
+      "Negro": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_negro.mp3",
+      "Blanco": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_blanco.mp3",
+      "Anaranjado": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_anaranjado.mp3",
+      "Violeta": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_violeta.mp3",
+      "Rosa": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_rosa.mp3",
+      "Marrón": "https://raw.githubusercontent.com/loxodontapr/audio/main/pregunta_marron.mp3"
+    };
+    const correctAudios = {
+      "Rojo": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_rojo.mp3",
+      "Azul": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_azul.mp3",
+      "Amarillo": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_amarillo.mp3",
+      "Verde": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_verde.mp3",
+      "Negro": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_negro.mp3",
+      "Blanco": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_blanco.mp3",
+      "Anaranjado": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_anaranjado.mp3",
+      "Violeta": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_violeta.mp3",
+      "Rosa": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_rosa.mp3",
+      "Marrón": "https://raw.githubusercontent.com/loxodontapr/audio/main/correcto_marron.mp3"
+    };
+    const errorAudioUrl = "https://raw.githubusercontent.com/loxodontapr/audio/main/incorrecto.mp3";
+
+    const audioElement = document.getElementById("audio");
+
+    // Selecciona aleatoriamente una pregunta entre los botones visibles
+    function askQuestion() {
+      const container = document.getElementById("color-container");
+      const buttons = Array.from(container.children);
+      const visibleButtons = buttons.filter(button => button.style.visibility !== "hidden");
+      if (visibleButtons.length === 0) return; // Juego terminado
+      const randomButton = visibleButtons[Math.floor(Math.random() * visibleButtons.length)];
+      currentTargetColor = randomButton.innerText;
+      questionRepeatCount = 0; // Reinicia el contador de repeticiones
+      repeatQuestion();
+    }
+
+    // Función para comprobar la respuesta al pulsar un botón
+    function checkAnswer(selectedColor, buttonId) {
+      if (colorSelected) return;
+      clearTimeout(questionTimeout);
+      colorSelected = true;
+      const colorDisplay = document.getElementById("color-display");
+      if (selectedColor.toLowerCase() === currentTargetColor.toLowerCase()) {
+        colorDisplay.textContent = "¡Correcto!";
+        const btn = document.getElementById(buttonId);
+        const btnColor = btn.getAttribute("data-solid-color");
+        document.body.style.backgroundColor = btnColor;
+        document.getElementById(buttonId).style.visibility = "hidden";
+        let startTime = Date.now();
+        playAudio(correctAudios[currentTargetColor], function() {
+          let elapsed = Date.now() - startTime;
+          let delay = elapsed < 3000 ? 3000 - elapsed : 0;
+          setTimeout(function() {
+            document.body.style.backgroundColor = "";
+            colorDisplay.textContent = "";
+            colorSelected = false;
+            checkGameOver();
+            askQuestion();
+          }, delay);
+        });
+      } else {
+        colorDisplay.textContent = "¡Incorrecto!";
+        document.body.classList.add("shake");
+        document.body.style.backgroundColor = "red";
+        playAudio(errorAudioUrl, function() {
+          document.body.classList.remove("shake");
+          document.body.style.backgroundColor = "";
+          colorDisplay.textContent = "";
+          colorSelected = false;
+          // Repite la misma pregunta sin cambiar el color objetivo
+          repeatQuestion();
+        });
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      const modeIcon = document.getElementById("mode-icon");
+      const restartIcon = document.getElementById("restart-icon");
+      if (document.body.classList.contains("dark-mode")) {
+        modeIcon.style.color = "white";
+        restartIcon.src = "https://img.icons8.com/ios-filled/22/restart--v1.png";
+      } else {
+        modeIcon.style.color = "black";
+        restartIcon.src = "https://img.icons8.com/ios-filled/50/restart--v1.png";
+      }
+    }
+
+    function restartSelection() {
+      clearTimeout(questionTimeout);
+      colorSelected = false;
+      document.getElementById("color-display").textContent = "";
+      document.body.style.backgroundColor = "";
+      const container = document.getElementById("color-container");
+      const buttons = Array.from(container.children);
+      buttons.forEach(button => {
+        button.style.visibility = "visible";
+      });
+      const restartButton = document.getElementById("restart-btn");
+      restartButton.classList.remove("active");
+      shuffleElements(container);
+      askQuestion();
+    }
+
+    function shuffleElements(container) {
+      const elements = Array.from(container.children);
+      const shuffled = elements.sort(() => Math.random() - 0.5);
+      container.innerHTML = "";
+      shuffled.forEach(el => container.appendChild(el));
+    }
+
+    function checkGameOver() {
+      const container = document.getElementById("color-container");
+      const buttons = Array.from(container.children);
+      const allHidden = buttons.every(button => button.style.visibility === "hidden");
+      if (allHidden) {
+        const restartButton = document.getElementById("restart-btn");
+        restartButton.classList.add("active");
+        document.getElementById("color-display").textContent = "Has terminado. Presiona reiniciar para jugar de nuevo con los colores.";
+      }
+    }
+
+    // Footer: al pulsar el emoji se muestra/oculta el texto
+    document.getElementById("loveEmoji").addEventListener("click", function() {
+      const footerText = document.getElementById("footerText");
+      footerText.style.display = (footerText.style.display === "none" || footerText.style.display === "") ? "inline" : "none";
+    });
+
+    // Previene el scroll y zoom con gestos táctiles
+    document.addEventListener("touchmove", function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    // Al cargar la página, espera 3 segundos para hacer la pregunta inicial (una vez)
+    window.onload = function() {
+      setTimeout(askQuestion, 3000);
+    };
+  </script>
+</body>
+</html>
